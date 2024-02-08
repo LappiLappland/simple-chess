@@ -10,11 +10,14 @@ import PiecesHistory from './components/piecesHistory';
 import MovesHistory from './components/movesHistory';
 import GameTimer from './components/gameTimer';
 import GameOverScreen from './components/gameOverModal';
+import GameSounds from './classes/gameSounds';
+import PromotionModal from './components/promotionModal';
 
 function App() {
 
   const [board, setBoard] = useState(new Board());
   const [gamesCounter, setGamesCounter] = useState(0);
+  const [gamePaused, setGamePaused] = useState(false);
   const [blackPlayer, setBlackPlayer] = useState(new Player(CELL_COLORS.COLOR_BLACK));
   const [whitePlayer, setWhitePlayer] = useState(new Player(CELL_COLORS.COLOR_WHITE));
   const [currentPlayer, setCurrentPlayer] = useState(whitePlayer);
@@ -24,6 +27,18 @@ function App() {
     restart();
   }, [])
 
+  useEffect(() => {
+    if (board.winner) {
+      GameSounds.playSong();
+      setGamePaused(true);
+    }
+  }, [board.winner])
+
+  useEffect(() => {
+    if (board.promotePiece) setGamePaused(true)
+    else setGamePaused(false);
+  }, [board.promotePiece])
+
   function restart() {
     const newBoard = new Board();
     newBoard.initializeBoard();
@@ -31,6 +46,8 @@ function App() {
     setBoard(newBoard);
     setCurrentPlayer(whitePlayer);
     setGamesCounter(prev => prev + 1);
+    GameSounds.playRestart();
+    setGamePaused(false);
   }
 
   function swapPlayer() {
@@ -78,10 +95,21 @@ function App() {
       >
         <div className="main-board"
         >
-          {board.winner ? <GameOverScreen winner={board.winner} restart={restart}></GameOverScreen> : <></>}
+          {board.winner ? (
+            <GameOverScreen 
+            winner={board.winner}
+            restart={restart} />
+          ) : <></>}
+          {board.promotePiece ? (
+          <PromotionModal 
+            cell={board.promotePiece}
+            setBoard={setBoard}
+          />
+          ) : <></>}
           <h1 className="turn-text"
           >{currentPlayer.color} turn</h1>
-          <h2>{kingIsUnderAttack ? `${kingIsUnderAttack.color} is in check!` : ''}</h2>
+          <h2 className="check-text"
+          >{kingIsUnderAttack ? `${kingIsUnderAttack.color} is in check!` : ''}</h2>
           <BoardComponent
           board={board}
           setBoard={setBoard}
@@ -97,6 +125,7 @@ function App() {
           setBoard={setBoard}
           currentPlayer={currentPlayer}
           secondPlayer={currentPlayer === blackPlayer ? whitePlayer : blackPlayer}
+          gamePaused={gamePaused}
           ></GameTimer>
           <PiecesHistory
           piecesHistory={board.piecesHistory}

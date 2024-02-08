@@ -1,11 +1,14 @@
 import Cell from "../cell";
 import { CELL_COLORS } from "../colors";
+import GameSounds from "../gameSounds";
+import { SpecialMoves } from "../history";
 import Piece from "./piece";
 import { PIECES_NAMES } from "./piece";
 
 export default class Pawn extends Piece {
 
   private hasMoved: boolean = false;
+  public hasJustDoubleMoved: boolean = false;
 
   constructor(
     cell: Cell,
@@ -34,18 +37,36 @@ export default class Pawn extends Piece {
         }
       }
     }
+
     //Eat to the left and to the right
+    //En Passant to the left and to the right
     const leftCell = this.cell.board.getCell(this.cell.x - 1, this.cell.y + color*1)
-    if (leftCell && !leftCell.isEmpty()
-    && leftCell.piece!.color !== this.color) {
-      moves.push(leftCell)
-    }
-    const rightCell = this.cell.board.getCell(this.cell.x + 1, this.cell.y + color*1)
-    if (rightCell && !rightCell.isEmpty()
-    && rightCell.piece!.color !== this.color) {
-      moves.push(rightCell)
+    if (leftCell && leftCell.piece?.color !== this.color) {
+      const leftPassant = this.cell.board.getCell(leftCell.x, leftCell.y - color*1)
+      if ((!leftCell.isEmpty()
+      && leftCell.piece!.color !== this.color)
+      || (leftCell.isEmpty()
+      && leftPassant
+      && leftPassant.piece instanceof Pawn
+      && leftPassant.piece.hasJustDoubleMoved
+      )) {
+        moves.push(leftCell);
+      }
     }
 
+    const rightCell = this.cell.board.getCell(this.cell.x + 1, this.cell.y + color*1)
+    if (rightCell && rightCell.piece?.color !== this.color) {
+      const leftPassant = this.cell.board.getCell(rightCell.x, rightCell.y - color*1)
+      if ((!rightCell.isEmpty()
+      && rightCell.piece!.color !== this.color)
+      || (rightCell.isEmpty()
+      && leftPassant
+      && leftPassant.piece instanceof Pawn
+      && leftPassant.piece.hasJustDoubleMoved
+      )) {
+        moves.push(rightCell);
+      }
+    }
     return moves;
   }
 
@@ -73,8 +94,40 @@ export default class Pawn extends Piece {
   }
 
   public setPos(pos: Cell) {
+    let event;
+    if (!this.hasMoved) {
+      event = () => {this.hasMoved = false};
+      if (Math.abs(pos.y - this.cell.y) === 2) {
+        this.hasJustDoubleMoved = true;
+      }
+    }
+    else if (this.hasMoved) {
+      this.hasJustDoubleMoved = false;
+    }
     this.hasMoved = true;
-    return super.setPos(pos);
+
+    const color = this.color === CELL_COLORS.COLOR_BLACK ? 1 : -1;
+    const cellBehind = this.cell.board.getCell(pos.x, pos.y - color*1);
+    const moveWasVertical = pos.x === this.cell.x;
+    const wasPassant = cellBehind && cellBehind.piece
+                    && cellBehind.piece instanceof Pawn
+                    && !pos.piece
+                    && !moveWasVertical;
+    
+    if (wasPassant) {
+      const pawnBehind = cellBehind.piece;
+      pawnBehind!.teleportPos(pos);
+    }
+
+    const history = super.setPos(pos);
+    history.extraEvent = event;
+    if (wasPassant) history.specialMove = SpecialMoves.Passant;
+
+    if (pos.y === 7 || pos.y === 0) {
+      history.specialMove = SpecialMoves.Promotion;
+    }
+
+    return history;
   }
 
 }

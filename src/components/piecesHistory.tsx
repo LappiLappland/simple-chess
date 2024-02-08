@@ -25,8 +25,8 @@ export default function PiecesHistory({piecesHistory}: PiecesHistoryProps) {
         <h2>white pieces:</h2>
         <ul className="pieces-history-line"
         >
-          {white.map(piece => (
-            <li><img alt={piece.name} src={piece.img}></img></li>
+          {white.map((piece, i) => (
+            <li key={i}><img alt={piece.name} src={piece.img}></img></li>
           ))}
         </ul>
       </div>
@@ -34,8 +34,8 @@ export default function PiecesHistory({piecesHistory}: PiecesHistoryProps) {
         <h2>black pieces:</h2>
         <ul className="pieces-history-line"
         >
-          {black.map(piece => (
-            <li><img alt={piece.name} src={piece.img}></img></li>
+          {black.map((piece, i)=> (
+            <li key={i}><img alt={piece.name} src={piece.img}></img></li>
           ))}
         </ul>
       </div>

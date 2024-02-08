@@ -1,5 +1,6 @@
 import Cell from "../cell";
 import { CELL_COLORS } from "../colors";
+import GameSounds from "../gameSounds";
 import { History, SpecialMoves } from "../history";
 import Piece from "./piece";
 import { PIECES_NAMES } from "./piece";
@@ -26,7 +27,7 @@ export default class King extends Piece {
     const addCell = (xOffset: number, yOffset: number) => {
       const [x, y] = [this.cell.x + xOffset, this.cell.y + yOffset]
       if (board.cellExists(x, y)) {
-        const cell = board.getCell(x, y)
+        const cell = board.getCell(x, y)!
 
         if ((cell.occupiedBlack && this.color === CELL_COLORS.COLOR_WHITE)
           ||(cell.occupiedWhite && this.color === CELL_COLORS.COLOR_BLACK)) {
@@ -34,7 +35,7 @@ export default class King extends Piece {
           }
 
         if (cell.piece?.color !== this.color)
-          moves.push(board.getCell(x, y))
+          moves.push(board.getCell(x, y)!)
       }
     }
 
@@ -57,7 +58,7 @@ export default class King extends Piece {
           if (cell.piece && cell.piece instanceof Rook && !cell.piece.hasMoved) {
             const delta = this.cell.x - cell.x;
             const coef = delta < 0 ? -1 : 1;
-            const kingCell = this.cell.board.getCell(cell.x+1*coef, cell.y);
+            const kingCell = this.cell.board.getCell(cell.x+1*coef, cell.y)!;
             if ((this.color === CELL_COLORS.COLOR_BLACK && !kingCell.occupiedWhite)
             ||  (this.color === CELL_COLORS.COLOR_WHITE && !kingCell.occupiedBlack)) {
               moves.push(cell);
@@ -77,30 +78,38 @@ export default class King extends Piece {
       who: this,
       whereTo: pos,
       whereFrom: this.cell,
-      eatEnemy: false,
+      eatEnemy: null,
       specialMove: SpecialMoves.KingSideCastling,
     }
 
     const delta = this.cell.x - pos.x;
     const coef = delta < 0 ? -1 : 1;
     const rook = pos.piece!;
-    const rookCell = this.cell.board.getCell(pos.x+2*coef, pos.y);
-    const kingCell = this.cell.board.getCell(pos.x+1*coef, pos.y);
-    rook.setPos(rookCell);
-    super.setPos(kingCell);
+    const rookCell = this.cell.board.getCell(pos.x+2*coef, pos.y)!;
+    const kingCell = this.cell.board.getCell(pos.x+1*coef, pos.y)!;
+    
+    rook.teleportPos(rookCell);
+    super.teleportPos(kingCell);
 
-    history.specialMove = coef === 1 ? SpecialMoves.KingSideCastling : SpecialMoves.QueenSideCastling;
+    history.specialMove = coef !== 1 ? SpecialMoves.KingSideCastling : SpecialMoves.QueenSideCastling;
 
     return history;
   }
 
   public setPos(pos: Cell): History {
-    this.hasMoved = true;
-    if (pos.piece?.color === this.color) {
-      return this.castle(pos);
-    } else {
-      return super.setPos(pos);
+    let event;
+    if (!this.hasMoved) {
+      event = () => {this.hasMoved = false};
     }
+    this.hasMoved = true;
+    let history;
+    if (pos.piece?.color === this.color) {
+      history = this.castle(pos);
+    } else {
+      history = super.setPos(pos);
+    }
+    history.extraEvent = event;
+    return history;
   }
 
 }

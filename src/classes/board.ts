@@ -8,8 +8,9 @@ import Pawn from "./pieces/pawn";
 import Piece from "./pieces/piece";
 import Queen from "./pieces/queen";
 import Rook from "./pieces/rook";
-import { History } from "./history";
+import { History, SpecialMoves } from "./history";
 import { Player } from "./player";
+import GameSounds from "./gameSounds";
 
 export default class Board {
   cells: Cell[][] = [];
@@ -18,7 +19,8 @@ export default class Board {
   kingBlack: King | null = null;
   kingWhite: King | null = null;
   winner: Player | null = null;
-  
+  promotePiece: Cell | null = null;
+
   public initializeBoard() {
     const array = create2DArray(8);
     this.cells = array.map((y: null[], i: number) => {
@@ -60,7 +62,21 @@ export default class Board {
     this.updateOccupation();
   }
 
+/*   public debugBoardCastle() {
+    this.cells[7][1].piece = null;
+    this.cells[7][2].piece = null;
+    this.cells[7][3].piece = null;
+    this.cells[7][5].piece = null;
+    this.cells[7][6].piece = null;
+  }
+  public debugBoardPromotion() {
+    this.cells[6][0].piece!.teleportPos(this.cells[1][0]);
+  } */
+
   public getCell(x: number, y: number) {
+    if (x > 7 || x < 0 || y > 7 || y < 0) {
+      return null;
+    }
     return this.cells[y][x];
   }
 
@@ -91,7 +107,6 @@ export default class Board {
         }
       })
     })
-
   }
 
   public isKingUnderAttack(color: CELL_COLORS) {
@@ -110,20 +125,63 @@ export default class Board {
     newBoard.kingBlack = this.kingBlack;
     newBoard.kingWhite = this.kingWhite;
     newBoard.winner = this.winner;
-    console.log(this.cells);
+    newBoard.promotePiece = this.promotePiece;
     return newBoard;
   }
 
   public revertHistoryOnce() {
     const move = this.movesHistory.pop();
     if (move) {
-      move.who.setPos(move.whereFrom);
-      if (move.eatEnemy) {
-        const zombie = this.piecesHistory.pop();
-        zombie!.cell = move.whereTo;
+      switch (move.specialMove) {
+        case SpecialMoves.None:
+          if (move.eatEnemy) {
+            const zombie = this.piecesHistory.pop();
+            if (zombie) zombie.teleportPos(move.whereTo);
+          }
+          break;
+        case SpecialMoves.QueenSideCastling:
+          const rook = this.getCell(2, move.whereTo.y)!.piece as Rook;
+          if (rook) {
+            rook.teleportPos(this.getCell(0, 7)!);
+            rook.hasMoved = false;
+          }
+          const king = move.who as King;
+          king.hasMoved = false;
+          break;
+        case SpecialMoves.KingSideCastling:
+          const rook2 = this.getCell(5, move.whereTo.y)!.piece as Rook;
+          if (rook2) {
+            rook2.teleportPos(this.getCell(7, 7)!);
+            rook2.hasMoved = false;
+          }
+          const king2 = move.who as King;
+          king2.hasMoved = false;
+          break;
+        case SpecialMoves.Passant:
+          const zombie = this.piecesHistory.pop();
+          if (zombie) {
+            const cellFront = this.getCell(move.whereTo.x, move.whereFrom.y)!;
+            zombie.teleportPos(cellFront);
+          }
+          break;
+        case SpecialMoves.Promotion:
+          if (this.promotePiece) {
+            this.promotePiece = null;
+          }
+          if (move.eatEnemy) {
+            const zombie = this.piecesHistory.pop();
+            if (zombie) zombie.teleportPos(move.whereTo);
+          }
+          break;
+        default:
+          break;
       }
+      move.who.teleportPos(move.whereFrom);
+      if (move.extraEvent) move.extraEvent();
+      if (this.winner) this.winner = null;
     }
     this.updateOccupation();
+    GameSounds.playSpecial();
   }
 
   public highlightBoard(selected: Cell | null) {

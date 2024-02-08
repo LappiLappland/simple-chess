@@ -24,10 +24,7 @@ export default function BoardComponent({board, currentPlayer, setBoard, swapPlay
   function selectCell(cell: Cell) {
     if (selectedCell && selectedCell !== cell &&
        selectedCell.piece && cell.available) {
-      if (cell.piece) {
-        board.piecesHistory.push(cell.piece);
-      }
-      selectedCell.movePieceTo(cell);
+      selectedCell.movePieceTo(cell, board);
       setSelectedCell(null);
       swapPlayer();
     }

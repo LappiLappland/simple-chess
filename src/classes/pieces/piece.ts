@@ -1,5 +1,6 @@
 import Cell from "../cell";
 import { CELL_COLORS } from "../colors";
+import GameSounds from "../gameSounds";
 import { History, SpecialMoves } from "../history";
 
 export enum PIECES_NAMES {
@@ -33,13 +34,23 @@ export default class Piece {
       who: this,
       whereTo: pos,
       whereFrom: this.cell,
-      eatEnemy: !!pos.piece,
+      eatEnemy: pos.piece,
       specialMove: SpecialMoves.None,
     }
     this.cell.piece = null;
     this.cell = pos;
     pos.piece = this;
+
+    GameSounds.playMove();
+
     return history
+  }
+
+  public teleportPos(pos: Cell) {
+    if (this.cell.piece === this)
+      this.cell.piece = null;
+    this.cell = pos;
+    pos.piece = this;
   }
 
   protected filterOutOwn(arrays: Cell[][]) {
@@ -68,6 +79,8 @@ export default class Piece {
     return filtered;
   }
 
+  //TODO: when in check, pieces should be able to move only to cells that protect king
+  //? This is kind of hard to do tho, and this is the only thing missing, heh
   public getAvailableMoves(): Cell[] {
     return [];
   }

@@ -20,9 +20,9 @@ export default class Knight extends Piece {
     const addCell = (xOffset: number, yOffset: number) => {
       const [x, y] = [this.cell.x + xOffset, this.cell.y + yOffset]
       if (board.cellExists(x, y)) {
-        const cell = board.getCell(x, y)
+        const cell = board.getCell(x, y)!;
         if (cell.piece?.color !== this.color)
-          moves.push(board.getCell(x, y))
+          moves.push(cell);
       }
     }
 
@@ -45,7 +45,7 @@ export default class Knight extends Piece {
     const addCell = (xOffset: number, yOffset: number) => {
       const [x, y] = [this.cell.x + xOffset, this.cell.y + yOffset]
       if (board.cellExists(x, y)) {
-        const cell = board.getCell(x, y)
+        const cell = board.getCell(x, y)!;
         if (this.color === CELL_COLORS.COLOR_BLACK) {
           cell.occupiedBlack = true;
         } else {

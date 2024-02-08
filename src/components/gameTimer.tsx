@@ -8,9 +8,10 @@ interface GameTimerProps {
   secondPlayer: Player,
   board: Board,
   setBoard: (board: Board) => void,
+  gamePaused: boolean,
 }
 
-export default function GameTimer({currentPlayer, secondPlayer, board, setBoard}: GameTimerProps) {
+export default function GameTimer({currentPlayer, secondPlayer, board, setBoard, gamePaused}: GameTimerProps) {
 
   const [timeBlack, setTimeBlack] = useState(300);
   const [timeWhite, setTimeWhite] = useState(300);
@@ -20,6 +21,11 @@ export default function GameTimer({currentPlayer, secondPlayer, board, setBoard}
   useEffect(() => {
     startTimer();
   }, [currentPlayer])
+
+  useEffect(() => {
+    if (gamePaused) stopTimer()
+    else startTimer();
+  }, [gamePaused])
 
   useEffect(() => {
     if ((currentPlayer.color === CELL_COLORS.COLOR_BLACK && timeBlack <= 0)
@@ -41,6 +47,9 @@ export default function GameTimer({currentPlayer, secondPlayer, board, setBoard}
                     () => {setTimeWhite(prev => prev - 1)} ;
 
     timer.current = setInterval(callback, 1000)
+  }
+  function stopTimer() {
+    clearInterval(timer.current);
   }
 
   function formatTime(init: number) {
