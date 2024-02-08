@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/simple-chess/static/css/main.64a99fb7.css",
+    "main.js": "/simple-chess/static/js/main.bdf59d0b.js",
+    "index.html": "/simple-chess/index.html",
+    "main.64a99fb7.css.map": "/simple-chess/static/css/main.64a99fb7.css.map",
+    "main.bdf59d0b.js.map": "/simple-chess/static/js/main.bdf59d0b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.64a99fb7.css",
+    "static/js/main.bdf59d0b.js"
+  ]
+}
