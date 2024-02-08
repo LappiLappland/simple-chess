@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './styles/reset.css';
 import './styles/index.css';
 import './styles/board.css';
@@ -18,14 +18,25 @@ function App() {
   const [board, setBoard] = useState(new Board());
   const [gamesCounter, setGamesCounter] = useState(0);
   const [gamePaused, setGamePaused] = useState(false);
-  const [blackPlayer, setBlackPlayer] = useState(new Player(CELL_COLORS.COLOR_BLACK));
-  const [whitePlayer, setWhitePlayer] = useState(new Player(CELL_COLORS.COLOR_WHITE));
+  const [blackPlayer] = useState(new Player(CELL_COLORS.COLOR_BLACK));
+  const [whitePlayer] = useState(new Player(CELL_COLORS.COLOR_WHITE));
   const [currentPlayer, setCurrentPlayer] = useState(whitePlayer);
   const [kingIsUnderAttack, setKingIsUnderAttack] = useState<Player | null>(null);
 
+  const restart = useCallback(function restart() {
+    const newBoard = new Board();
+    newBoard.initializeBoard();
+    newBoard.initializePieces();
+    setBoard(newBoard);
+    setCurrentPlayer(whitePlayer);
+    setGamesCounter(prev => prev + 1);
+    GameSounds.playRestart();
+    setGamePaused(false);
+  }, [whitePlayer]);
+
   useEffect(() => {
     restart();
-  }, [])
+  }, [restart])
 
   useEffect(() => {
     if (board.winner) {
@@ -39,16 +50,7 @@ function App() {
     else setGamePaused(false);
   }, [board.promotePiece])
 
-  function restart() {
-    const newBoard = new Board();
-    newBoard.initializeBoard();
-    newBoard.initializePieces();
-    setBoard(newBoard);
-    setCurrentPlayer(whitePlayer);
-    setGamesCounter(prev => prev + 1);
-    GameSounds.playRestart();
-    setGamePaused(false);
-  }
+
 
   function swapPlayer() {
     board.updateOccupation();

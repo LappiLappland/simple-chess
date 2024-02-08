@@ -1,7 +1,7 @@
 import Board from "./board";
 import { CELL_COLORS } from "./colors";
+import { SpecialMoves } from "./history";
 import Piece, { PIECES_NAMES } from "./pieces/piece";
-import { History, SpecialMoves } from "./history";
 
 export default class Cell {
   readonly x: number;

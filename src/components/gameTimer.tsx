@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Board from "../classes/board";
 import { CELL_COLORS } from "../classes/colors";
 import { Player } from "../classes/player";
@@ -18,26 +18,7 @@ export default function GameTimer({currentPlayer, secondPlayer, board, setBoard,
 
   const timer = useRef<any>(null);
   
-  useEffect(() => {
-    startTimer();
-  }, [currentPlayer])
-
-  useEffect(() => {
-    if (gamePaused) stopTimer()
-    else startTimer();
-  }, [gamePaused])
-
-  useEffect(() => {
-    if ((currentPlayer.color === CELL_COLORS.COLOR_BLACK && timeBlack <= 0)
-      ||(currentPlayer.color === CELL_COLORS.COLOR_WHITE && timeWhite <= 0)) {
-      clearInterval(timer.current);
-      board.winner = secondPlayer;
-      const newBoard = board.copyBoard();
-      setBoard(newBoard);
-    }
-  }, [timeBlack, timeWhite])
-
-  function startTimer() {
+  const startTimer = useCallback(function startTimer() {
     if (timer.current) {
       clearInterval(timer.current);
     }
@@ -47,7 +28,27 @@ export default function GameTimer({currentPlayer, secondPlayer, board, setBoard,
                     () => {setTimeWhite(prev => prev - 1)} ;
 
     timer.current = setInterval(callback, 1000)
-  }
+  }, [currentPlayer.color]);
+
+  useEffect(() => {
+    startTimer();
+  }, [currentPlayer, startTimer])
+
+  useEffect(() => {
+    if (gamePaused) stopTimer()
+    else startTimer();
+  }, [gamePaused, startTimer])
+
+  useEffect(() => {
+    if ((currentPlayer.color === CELL_COLORS.COLOR_BLACK && timeBlack <= 0)
+      ||(currentPlayer.color === CELL_COLORS.COLOR_WHITE && timeWhite <= 0)) {
+      clearInterval(timer.current);
+      board.winner = secondPlayer;
+      const newBoard = board.copyBoard();
+      setBoard(newBoard);
+    }
+  }, [board, currentPlayer.color, secondPlayer, setBoard, timeBlack, timeWhite])
+
   function stopTimer() {
     clearInterval(timer.current);
   }

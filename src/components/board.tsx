@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import Board from '../classes/board';
 import Cell from '../classes/cell';
 import { Player } from '../classes/player';
@@ -16,9 +16,19 @@ export default function BoardComponent({board, currentPlayer, setBoard, swapPlay
   
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
 
+  const updateBoard = useCallback(function updateBoard() {
+    const newBoard = board.copyBoard();
+    setBoard(newBoard);
+  }, [board, setBoard]);
+
+  const highlightBoard = useCallback(function highlightBoard() {
+    board.highlightBoard(selectedCell);
+    updateBoard();
+  }, [board, selectedCell, updateBoard]);
+
   useEffect(() => {
     highlightBoard();
-  }, [selectedCell])
+  }, [highlightBoard, selectedCell])
 
 
   function selectCell(cell: Cell) {
@@ -37,15 +47,7 @@ export default function BoardComponent({board, currentPlayer, setBoard, swapPlay
     }
   }
 
-  function highlightBoard() {
-    board.highlightBoard(selectedCell);
-    updateBoard();
-  }
 
-  function updateBoard() {
-    const newBoard = board.copyBoard();
-    setBoard(newBoard);
-  }
 
   return (
     <div className="board"

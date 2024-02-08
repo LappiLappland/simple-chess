@@ -1,9 +1,7 @@
 import Cell from "../cell";
 import { CELL_COLORS } from "../colors";
-import GameSounds from "../gameSounds";
 import { History, SpecialMoves } from "../history";
-import Piece from "./piece";
-import { PIECES_NAMES } from "./piece";
+import Piece, { PIECES_NAMES } from "./piece";
 import Rook from "./rook";
 
 export default class King extends Piece {

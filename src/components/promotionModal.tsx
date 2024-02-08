@@ -5,7 +5,6 @@ import GameSounds from "../classes/gameSounds";
 import { PromotionHistory } from "../classes/history";
 import Bishop from "../classes/pieces/bishop";
 import Knight from "../classes/pieces/knight";
-import Piece from "../classes/pieces/piece";
 import Queen from "../classes/pieces/queen";
 import Rook from "../classes/pieces/rook";
 
