@@ -10,7 +10,7 @@ export default class Bishop extends Piece {
     super(cell, color);
     this.name = PIECES_NAMES.BISHOP;
     const colorLetter = color === CELL_COLORS.COLOR_BLACK ? 'b' : 'w';
-    this.img = `/pieces/${colorLetter}_bishop.svg`;
+    this.img = `/simple-chess/pieces/${colorLetter}_bishop.svg`;
   }
 
   public getAvailableMoves() {

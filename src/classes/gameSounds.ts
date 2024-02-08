@@ -13,23 +13,23 @@ export default class GameSounds {
   }
 
   static playMove(): void {
-    this.playSound('/sounds/piece_move.wav')
+    this.playSound('/simple-chess/sounds/piece_move.wav')
   }
 
   static playSpecial(): void {
-    this.playSound('/sounds/piece_special.wav')
+    this.playSound('/simple-chess/sounds/piece_special.wav')
   }
 
   static playEvolve(): void {
-    this.playSound('/sounds/piece_evolve.wav')
+    this.playSound('/simple-chess/sounds/piece_evolve.wav')
   }
 
   static playRestart(): void {
-    this.playSound('/sounds/board_restart.wav')
+    this.playSound('/simple-chess/sounds/board_restart.wav')
   }
 
   static playSong(): void {
-    this.playSound('/sounds/song_win.wav')
+    this.playSound('/simple-chess/sounds/song_win.wav')
   }
 
 }

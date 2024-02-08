@@ -15,7 +15,7 @@ export default class Pawn extends Piece {
     super(cell, color);
     this.name = PIECES_NAMES.PAWN;
     const colorLetter = color === CELL_COLORS.COLOR_BLACK ? 'b' : 'w';
-    this.img = `/pieces/${colorLetter}_pawn.svg`;
+    this.img = `/simple-chess/pieces/${colorLetter}_pawn.svg`;
   }
 
   public getAvailableMoves() {

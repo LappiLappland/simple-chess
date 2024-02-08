@@ -15,7 +15,7 @@ export default class King extends Piece {
     super(cell, color);
     this.name = PIECES_NAMES.KING;
     const colorLetter = color === CELL_COLORS.COLOR_BLACK ? 'b' : 'w';
-    this.img = `/pieces/${colorLetter}_king.svg`;
+    this.img = `/simple-chess/pieces/${colorLetter}_king.svg`;
   }
 
   public getAvailableMoves() {

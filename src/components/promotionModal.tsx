@@ -79,7 +79,7 @@ function PieceButton({color, piece, promoteCallback}: PieceButtonProps) {
     <li
       onClick={() => {promoteCallback()}}
     >
-      <img src={`/pieces/${color}_${piece}.svg`} alt={piece}/>
+      <img src={`/simple-chess/pieces/${color}_${piece}.svg`} alt={piece}/>
     </li>
   )
 }

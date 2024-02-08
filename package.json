@@ -1,5 +1,6 @@
 {
   "name": "chess",
+  "homepage": "https://lappilappland.github.io/simple-chess/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
